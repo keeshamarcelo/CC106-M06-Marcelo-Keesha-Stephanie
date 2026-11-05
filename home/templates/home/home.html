@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'registration/style.css' %}">
+</head>
+<body>
+    {% include 'registration/_navigation.html' %}
+    <h1>{{ title }}</h1>
+    {% if show_message %}
+        <p>{{ message }}</p>
+    {% endif %}
+</body>
+</html>

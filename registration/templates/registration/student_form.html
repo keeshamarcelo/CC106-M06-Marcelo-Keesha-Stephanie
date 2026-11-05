@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+    <link rel="stylesheet" href="{% static 'registration/style.css' %}">
+</head>
+<body>
+    {% include 'registration/_navigation.html' %}
+    <h1>{{ page_title }}</h1>
+    {% include 'registration/_messages.html' %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Student</button>
+        <a href="{% url 'student_list' %}">Cancel</a>
+    </form>
+</body>
+</html>
