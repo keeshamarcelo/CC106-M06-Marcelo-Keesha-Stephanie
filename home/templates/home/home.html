@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -12,5 +13,18 @@
     {% if show_message %}
         <p>{{ message }}</p>
     {% endif %}
+=======
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    {% if show_message %}
+    <p>{{ message }}</p>
+    {% endif %}
+    <a href="{% url 'landing' %}">Back to Landing Page</a>
+>>>>>>> dceea872490fbeefdd4d762cb0bf0864c0098fc1
 </body>
 </html>
