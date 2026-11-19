@@ -2,5 +2,14 @@
     <a href="{% url 'landing' %}">Landing</a>
     <a href="{% url 'home' %}">Home</a>
     <a href="{% url 'student_registration' %}">Registration</a>
-    <a href="{% url 'student_list' %}">Student Directory</a>
+    {% if user.is_staff %}
+        <a href="{% url 'student_list' %}">Student Directory</a>
+        <span>Staff: {{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Staff Logout</button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}">Staff Login</a>
+    {% endif %}
 </nav>

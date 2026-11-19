@@ -11,5 +11,10 @@
     <h1>Welcome to My Django Application</h1>
     <p>This is the landing page.</p>
     <a href="{% url 'home' %}">Go to Home</a>
+    {% if user.is_staff %}
+        <p><a href="{% url 'student_list' %}">Open Staff Dashboard</a></p>
+    {% else %}
+        <p><a href="{% url 'login' %}">Staff Login</a></p>
+    {% endif %}
 </body>
 </html>

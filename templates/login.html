@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Registration - Login</title>
+</head>
+<body>
+
+    <h2>Student Registration System</h2>
+    <h3>Login to Your Account</h3>
+
+    {% if form.errors %}
+        <p>Invalid username or password.</p>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+
+        <label>Username:</label>
+        <input type="text" name="username" required>
+
+        <br><br>
+
+        <label>Password:</label>
+        <input type="password" name="password" required>
+
+        <br><br>
+
+        <button type="submit">Log In</button>
+    </form>
+
+</body>
+</html>

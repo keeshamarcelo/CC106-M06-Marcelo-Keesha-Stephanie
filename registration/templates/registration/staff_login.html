@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Login</title>
+    <link rel="stylesheet" href="{% static 'registration/style.css' %}">
+</head>
+<body>
+    {% include 'registration/_navigation.html' %}
+    <h1>Staff Login</h1>
+
+    {% if error %}
+        <p class="message error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" class="login-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <p>
+            <label for="id_username">Username</label><br>
+            <input id="id_username" type="text" name="username" autocomplete="username" required>
+        </p>
+
+        <p>
+            <label for="id_password">Password</label><br>
+            <input id="id_password" type="password" name="password" autocomplete="current-password" required>
+        </p>
+
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

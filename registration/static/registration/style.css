@@ -72,3 +72,10 @@ input, select {
     padding: 8px;
     margin: 4px 0;
 }
+
+.login-form {
+    max-width: 360px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #d7dee8;
+}
