@@ -33,9 +33,40 @@ def staff_check(user):
     return user.is_authenticated and user.is_staff
 
 
-@user_passes_test(staff_check, login_url='login')
+@user_passes_test(staff_check, login_url='staff_login')
 def staff_dashboard(request):
-    return render(request, 'registration/dashboard.html')
+    total_students = Student.objects.count()
+    male_students = Student.objects.filter(gender='Male').count()
+    female_students = Student.objects.filter(gender='Female').count()
+
+    male_percent = (
+        male_students / total_students * 100
+        if total_students > 0 else 0
+    )
+    female_percent = (
+        female_students / total_students * 100
+        if total_students > 0 else 0
+    )
+
+    query = request.GET.get('q', '').strip()
+    students = Student.objects.all().order_by('last_name', 'first_name')
+    if query:
+        students = students.filter(
+            Q(student_id__icontains=query)
+            | Q(first_name__icontains=query)
+            | Q(last_name__icontains=query)
+        )
+
+    context = {
+        'total_students': total_students,
+        'male_students': male_students,
+        'female_students': female_students,
+        'male_percent': male_percent,
+        'female_percent': female_percent,
+        'students': students,
+        'query': query,
+    }
+    return render(request, 'registration/dashboard.html', context)
 
 
 def staff_login(request):
@@ -48,7 +79,7 @@ def staff_login(request):
         next_url = ''
 
     if request.user.is_authenticated and request.user.is_staff:
-        return redirect(next_url or 'student_list')
+        return redirect(next_url or 'staff_dashboard')
 
     error = None
     if request.method == 'POST':
@@ -58,7 +89,7 @@ def staff_login(request):
 
         if user is not None and user.is_staff:
             login(request, user)
-            return redirect(next_url or 'student_list')
+            return redirect(next_url or 'staff_dashboard')
 
         error = 'Invalid staff username or password.'
 
@@ -78,7 +109,6 @@ def staff_logout(request):
     return redirect('staff_login')
 
 
-@user_passes_test(staff_check, login_url='login')
 def student_list(request):
     query = request.GET.get('q', '').strip()
     students = Student.objects.all().order_by('last_name', 'first_name')
@@ -96,7 +126,6 @@ def student_list(request):
     )
 
 
-@user_passes_test(staff_check, login_url='login')
 def student_detail(request, pk):
     student = get_object_or_404(Student, pk=pk)
     return render(
@@ -106,7 +135,6 @@ def student_detail(request, pk):
     )
 
 
-@user_passes_test(staff_check, login_url='login')
 def student_create(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
@@ -124,7 +152,6 @@ def student_create(request):
     )
 
 
-@user_passes_test(staff_check, login_url='login')
 def student_update(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == 'POST':
@@ -147,7 +174,6 @@ def student_update(request, pk):
     )
 
 
-@user_passes_test(staff_check, login_url='login')
 def student_delete(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == 'POST':

@@ -1,4 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import Student
 
@@ -138,3 +140,66 @@ class StudentRegistrationTests(TestCase):
         response = self.client.post(delete_url)
         self.assertRedirects(response, '/registration/students/')
         self.assertFalse(Student.objects.filter(pk=student.pk).exists())
+
+
+class StaffDashboardTests(TestCase):
+    def setUp(self):
+        self.staff = get_user_model().objects.create_user(
+            username='dashboard-staff',
+            password='test-password',
+            is_staff=True,
+        )
+
+    def create_student(self, student_id, first_name, last_name, gender):
+        return Student.objects.create(
+            student_id=student_id,
+            first_name=first_name,
+            last_name=last_name,
+            gender=gender,
+            date_of_birth='2005-04-12',
+            contact_no='555-0100',
+        )
+
+    def test_dashboard_redirects_anonymous_users_to_staff_login(self):
+        response = self.client.get(reverse('staff_dashboard'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url.split('?')[0], reverse('staff_login'))
+
+    def test_dashboard_shows_counts_and_filters_only_the_report(self):
+        self.create_student('S124', 'Jamie', 'Brown', 'Male')
+        self.create_student('S125', 'Taylor', 'Adams', 'Female')
+        self.client.force_login(self.staff)
+
+        response = self.client.get(
+            reverse('staff_dashboard'),
+            {'q': 'S124'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total_students'], 2)
+        self.assertEqual(response.context['male_students'], 1)
+        self.assertEqual(response.context['female_students'], 1)
+        self.assertEqual(response.context['male_percent'], 50)
+        self.assertEqual(response.context['female_percent'], 50)
+        self.assertEqual(response.context['students'].count(), 1)
+        self.assertContains(response, 'S124')
+        self.assertNotContains(response, 'S125')
+
+    def test_dashboard_handles_no_students(self):
+        self.client.force_login(self.staff)
+
+        response = self.client.get(reverse('staff_dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total_students'], 0)
+        self.assertEqual(response.context['male_percent'], 0)
+        self.assertEqual(response.context['female_percent'], 0)
+        self.assertContains(response, 'No student records found.')
+
+    def test_staff_navigation_links_to_dashboard(self):
+        self.client.force_login(self.staff)
+
+        response = self.client.get(reverse('student_registration'))
+
+        self.assertContains(response, f'href="{reverse("staff_dashboard")}"')
